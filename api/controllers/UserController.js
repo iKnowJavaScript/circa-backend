@@ -1,8 +1,11 @@
+require('dotenv').config();
 const httpStatus = require('http-status');
 const { UserQuery } = require('../models//index');
 const sendResponse = require('../../helpers/response');
 const bcryptService = require('../services/bcrypt.service');
 const authService = require('../services/auth.service');
+const EmailService = require('../services/mail.service');
+const signupMail = require('../templates/signup.mail.template');
 
 const UserController = () => {
   const signup = async (req, res, next) => {
@@ -33,15 +36,29 @@ const UserController = () => {
         );
       }
 
-      const user = await UserQuery.create({
-        name,
-        email,
-        phone,
-        password,
-        user_type
+      EmailService.sendMail({
+        from: process.env.CIRCA_DEV_EMAIL,
+        to: `${email}`,
+        subject: `${signupMail.mailTitle}`,
+        html: `${signupMail.mailBody}`
       });
 
-      return res.json(sendResponse(httpStatus.OK, 'success', user, null));
+      EmailService.on('error', err => next(err));
+
+      EmailService.on('success', async () => {
+        try {
+          const user = await UserQuery.create({
+            name,
+            email,
+            phone,
+            password,
+            user_type
+          });
+          return res.json(sendResponse(httpStatus.OK, 'success', user, null));
+        } catch (err) {
+          next(err);
+        }
+      });
     } catch (err) {
       next(err);
     }
