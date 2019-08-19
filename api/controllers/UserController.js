@@ -90,7 +90,7 @@ const UserController = () => {
     try {
       const query = req.body;
       const users = await UserQuery.getAll(query);
-      return res.json(sendResponse(httpStatus.OK, 'success', users, null, token));
+      return res.json(sendResponse(httpStatus.OK, 'success', users, null));
     } catch (err) {
       next(err);
     }
