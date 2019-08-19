@@ -28,6 +28,10 @@ const schema = new Schema(
     isAdmin: {
       type: Boolean,
       default: false
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } }
